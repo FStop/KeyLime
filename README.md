@@ -6,9 +6,9 @@ KeyLime is a simple yet tangy WordPress starter theme, based on the wonderful _s
 
 I made this theme to scratch an itch, and thought it might be useful for others. A good starter theme is invaluable for any WordPress developer.
 
-I used [Bones](https://github.com/eddiemachado/bones) for a long time and loved it. But as my WordPress and dev skills in general evolved, I began to realize I wanted something that wasn't quite as developed out of the box. I found myself removing a lot of things from Bones ever time. I also wanted something that was coded the WordPress Way<sup>™</up>.
+I used [Bones](https://github.com/eddiemachado/bones) for a long time and loved it. But as my WordPress and dev skills in general evolved, I began to realize I wanted something that wasn't quite as developed out of the box. I found myself removing a lot of things from Bones every time. I also wanted something that was coded the WordPress Way<sup>™</up>.
 
-The [Underscores](http://underscores.me) theme fits that bill perfectly. It's built by Automattic, so you know the code is tight and well maintained. But Underscores is just a bit too "blank" for me to start with every time. There are things I like to use on every project like SASS, Compass, Modernizr, a CSS grid system, etc., that aren't included in Underscores. So I figured, why not take Underscores and sprinkle a little sugar on it?
+The [Underscores](http://underscores.me) theme fits that bill perfectly. It's built by Automattic, so you know the code is tight and well maintained. But Underscores is just a bit too "blank" for me to start a project with. There are things I like to use on every project like SASS, Compass, Modernizr, a CSS grid system, etc., that aren't included in Underscores. So I figured, why not take Underscores and sprinkle a little sugar on it?
 
 So KeyLime was born. Like Underscores, this theme is meant to be a starting point. Take it and hack away at it. Delete stuff you don't need, add stuff that you like. Fork it. Submit issues and pull requests if you want to make it more awesome.
 
