@@ -12,7 +12,7 @@ javascripts_dir = "js"
 
 # Development settings. 
 # For production comment out or delete & uncomment settings below 
-output_style = :nested
+output_style = :expanded
 environment = :development
 
 # Enable/sisable CSS line comments.
