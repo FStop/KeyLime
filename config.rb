@@ -15,6 +15,10 @@ javascripts_dir = "js"
 output_style = :nested
 environment = :development
 
+# Enable/sisable CSS line comments.
+# Useful for debugging, annoying for source control.
+line_comments = false
+
 # Production settings
 # output_style = :compressed
 # environment = :production
