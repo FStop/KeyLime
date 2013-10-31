@@ -83,6 +83,8 @@ add_action( 'widgets_init', 'keylime_widgets_init' );
  * Enqueue scripts and styles
  */
 function keylime_scripts() {
+	wp_enqueue_script( 'keylime-moderizr', get_template_directory_uri() . '/js/lib/modernizr.min.js', array(), '20131030', false );
+
 	wp_enqueue_style( 'keylime-style', get_stylesheet_uri() );
 
 	wp_enqueue_script( 'keylime-navigation', get_template_directory_uri() . '/js/navigation.js', array(), '20120206', true );
