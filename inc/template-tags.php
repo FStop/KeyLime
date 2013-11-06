@@ -229,3 +229,24 @@ function keylime_category_transient_flusher() {
 }
 add_action( 'edit_category', 'keylime_category_transient_flusher' );
 add_action( 'save_post',     'keylime_category_transient_flusher' );
+
+/** Automatically append mtime to the version for cache-busting action **/
+add_action( 'wp_enqueue_scripts', function() {
+	global $wp_styles, $wp_scripts;
+
+	foreach( array( 'wp_styles', 'wp_scripts' ) as $resource ) {
+
+		foreach( $$resource->registered as $name => $registered_resource ) {
+			if ( false === stripos( $name, 'keylime-' ) )
+			continue;
+
+			// Not hosted here
+			if ( false === stripos( $registered_resource->src, home_url() ) )
+			continue;
+
+			$file = str_replace( home_url( '/' ), ABSPATH, $registered_resource->src );
+			$mtime = filectime( $file );
+			$$resource->registered[$name]->ver = $$resource->registered[$name]->ver . '-' . $mtime;
+		}
+	}
+}, 100 );
