@@ -1,0 +1,89 @@
+// Gallery Syntax
+// ==============
+
+// Gallery
+// -------
+// Create an isolated gallery
+// - $input       : <span>
+// - [$selector]  : child | of-type
+@mixin gallery(
+  $layout,
+  $selector: child
+) {
+  $layout             : parse-span($layout);
+  $layout             : map-merge($layout, (location: 1));
+
+  $span               : span-get(span, $layout);
+  $columns            : span-get(columns, $layout);
+  $context            : column-count($columns);
+  $flow               : span-get(flow, $layout);
+
+  $box                : span-get(box-sizing, $layout);
+  $inside             : is-inside($layout);
+  $from               : from($flow);
+  $line               : floor($context / $span);
+  $symmetrical        : is-symmetrical($columns);
+
+  $output: (
+    width             : null,
+    float             : from,
+    margin_before     : null,
+    margin_after      : null,
+    padding_before    : null,
+    padding_after     : null,
+    flow              : $flow,
+  );
+
+  @if $inside {
+    $gutters: get-gutters($layout);
+    $output: map-merge($output, (
+      padding_before: map-get($gutters, before),
+      padding_after: map-get($gutters, after),
+    ));
+  }
+
+  @if $symmetrical {
+    $output: map-merge($output, (width: get-span-width($layout)));
+  }
+
+  // Collective Output
+  @if $box == border-box or $inside {
+    @include susy-box-sizing(border-box);
+  } @else if $box == content-box {
+    @include susy-box-sizing(content-box);
+  }
+
+  @include float-span-output($output...);
+
+  // Individual Loop
+  @for $item from 1 through $line {
+    $nth: '#{$line}n + #{$item}';
+    &:#{format-nth($nth,$selector)} {
+      // Individual Prep
+      $output: (
+        width             : if($symmetrical, null, get-span-width($layout)),
+        float             : null,
+        margin_before     : get-isolation($layout),
+        margin_after      : -100%,
+        padding_before    : null,
+        padding_after     : null,
+        flow              : $flow,
+      );
+
+      // Individual Output
+      @include float-span-output($output...);
+
+      @if is-first(span-get(location, $layout)) {
+        @include first($flow);
+        clear: $from;
+      } @else {
+        clear: none;
+      }
+
+      // Individual Location Increment
+      $location: span-get(location, $layout) + $span;
+      $location: if($location > $context, 1, $location);
+      $layout: map-merge($layout, (location: $location));
+    }
+  }
+}

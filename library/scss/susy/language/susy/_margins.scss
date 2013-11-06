@@ -1,0 +1,76 @@
+// Margin Syntax
+// =============
+
+// Pre
+// ---
+// Add spanning-margins before an element.
+// - $span  : <span>
+@mixin pre(
+  $span
+) {
+  $span   : map-merge(parse-span($span), (outer: outer));
+  $flow   : span-get(flow, $span);
+  $width  : span($span);
+
+  @include margin-output($width, null, $flow);
+}
+
+// Post
+// ----
+// Add spanning-margins after an element.
+// - $span  : <span>
+@mixin post(
+  $span
+) {
+  $span   : map-merge(parse-span($span), (outer: outer));
+  $flow   : span-get(flow, $span);
+  $width  : span($span);
+
+  @include margin-output(null, $width, $flow);
+}
+
+// Push
+// ----
+// Simple synonymn for pre.
+// - $span  : <span>
+@mixin push(
+  $span
+) {
+  @include pre($span);
+}
+
+// Pull
+// ----
+// Add negative spanning-margins before an element.
+// - $span  : <span>
+@mixin pull(
+  $span
+) {
+  $span   : map-merge(parse-span($span), (outer: outer));
+  $flow   : span-get(flow, $span);
+  $width  : 0 - span($span);
+
+  @include margin-output($width, null, $flow);
+}
+
+// Squish
+// ------
+// Add spanning-margins before and after an element.
+// - $pre     : <span>
+// - [$post]  : <span>
+@mixin squish(
+  $pre,
+  $post: $pre
+) {
+  $pre      : if(length($pre) == 1 and length($post) > 1, set-nth($post, 1, $pre), $pre);
+  $pre      : map-merge(parse-span($pre), (outer: outer));
+  $post     : map-merge(parse-span($post), (outer: outer));
+
+  $output   : (
+    before: span($pre),
+    after: span($post),
+    flow: span-get(flow, $pre) or span-get(flow, $post),
+  );
+
+  @include margin-output($output...);
+}

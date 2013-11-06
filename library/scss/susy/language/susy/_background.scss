@@ -1,0 +1,159 @@
+// Background Grid Syntax
+// ======================
+
+$susy-debug-defaults: (
+  position: relative,
+  color: rgba(#66f, .25),
+  toggle: left bottom,
+);
+
+// The overlay is painted over your container's ::after pseudo-element,
+// so we must give position to the container itself.
+// If relative doesn't suit your layout, it can be replaced by absolute/fixed.
+$susy-debug: () !default;
+
+// Grid Background
+// ---------------
+// Show a grid background on any element.
+// - [$grid]  : <settings>
+@mixin background-grid(
+  $grid: $susy
+) {
+  $grid     : parse-grid($grid);
+
+  $flow     : susy-get(flow, $grid);
+  $show     : susy-get(show-grids, $grid);
+
+  $stops    : get-grid-color-stops($grid);
+
+  @include background-grid-output($stops, $show: $show, $flow: $flow);
+}
+
+// Grid Overlay
+// ------------
+// Generate an icon to trigger grid-overlays on any given elements.
+// $grids...  : <selector> [<settings>] [, <selector>]*
+@mixin overlay-grid (
+  $grids...
+) {
+  $debug: map-merge($susy-debug-defaults, $susy-debug);
+  $position: map-get($debug, position);
+  $toggle: map-get($debug, toggle);
+  $horz: null;
+  $vert: null;
+
+  @each $side in $toggle {
+    $horz: if($side == left or $side == right, $side, $horz);
+    $vert: if($side == top or $side == bottom, $side, $vert);
+  }
+
+  head {
+    display: block;
+    position: fixed;
+    #{$horz}: 10px;
+    #{$vert}: 10px;
+    z-index: 999;
+    color: #333;
+    border-radius: .25em;
+    text-shadow: 0 0 3px #fff;
+    &::before {
+      content: "|||";
+      display: block;
+      padding: 10px 14px;
+      letter-spacing: -1;
+      font: {
+        family: sans-serif;
+        size: 26px;
+        weight: bold;
+      }
+    }
+    &:hover {
+      box-shadow: 0 0 3px rgba(#333,.5);
+      background: rgba(white,.5);
+      @each $grid in $grids {
+        $selector: nth($grid, 1);
+        $grid: if(length($grid) > 1, nth($grid, 2), $susy);
+
+        ~ #{$selector},
+        ~ body #{$selector} {
+          position: $position;
+          &::before {
+            @extend %grid-overlay-base;
+            @include background-grid($grid);
+          }
+        }
+      }
+    }
+  }
+}
+
+%grid-overlay-base {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  content: " ";
+  z-index: 998;
+}
+
+// Grid Color-Stops
+// ----------------
+// Calculate the color-stops needed for a particular grid.
+// - $grid  : <map>
+@function get-grid-color-stops(
+  $grid
+) {
+  $stops  : ();
+  $color  : map-get($susy-debug, color) or map-get($susy-debug-defaults, color);
+  $trans  : transparent;
+  $light  : lighten($color, 15%);
+
+  $columns            : susy-get(columns, $grid);
+  $gutters            : susy-get(gutters, $grid);
+  $column-width       : susy-get(column-width, $grid);
+  $layout-math        : susy-get(layout-math, $grid);
+  $gutter-position    : susy-get(gutter-position, $grid);
+
+  @for $location from 1 through column-count($columns) {
+    $this-stop: compact();
+
+    @if $location == 1 {
+      $this-stop: append($this-stop, $color, comma);
+    } @else {
+      $start: parse-span(1 at $location $grid);
+      $start: get-isolation($start);
+      $this-stop: append($this-stop, $color $start, comma);
+    }
+
+    @if $location == column-count($columns) {
+      $this-stop: append($this-stop, $light, comma);
+    } @else {
+      $end-color: $light;
+
+      @if not is-inside($grid) {
+        $gutter: (
+          span: $location,
+          location: 1,
+          columns: $columns,
+          gutters: $gutters,
+          column-width: $column-width,
+          layout-math: $layout-math,
+          gutter-position: $gutter-position,
+        );
+        $gutter: get-span-width($gutter);
+        $this-stop: append($this-stop, $light $gutter, comma);
+        $this-stop: append($this-stop, $trans $gutter, comma);
+        $end-color: $trans;
+      }
+
+      $end: parse-span(1 at ($location + 1) $grid);
+      $end: get-isolation($end);
+      $this-stop: append($this-stop, $end-color $end, comma);
+    }
+
+    $stops: join($stops, $this-stop, comma);
+  }
+
+  @return $stops;
+}

@@ -1,0 +1,92 @@
+// Column math
+// ===========
+
+// Is Symmetrical
+// --------------
+// Returns true if a grid is symmetrical.
+// - [$columns]   : <number> | <list>
+@function is-symmetrical(
+  $columns: susy-get(columns)
+) {
+  @return if(type-of($columns) == number, $columns, null);
+}
+
+// Columns Count
+// -------------
+// Find the number of columns in a given layout
+// - [$columns]   : <number> | <list>
+@function column-count(
+  $columns: susy-get(columns)
+) {
+  @return is-symmetrical($columns) or length($columns);
+}
+
+// Column Sum
+// ----------
+// Find the total sum of column-units in a layout
+// - [$columns]   : <number> | <list>
+// - [$gutters]   : <ratio>
+// - [$outer]     : <boolean>
+@function column-sum(
+  $columns  : susy-get(columns),
+  $gutters  : susy-get(gutters),
+  $outer    : false
+) {
+  $outer: if($outer, if($outer == double, 1, 0), -1);
+  $gutter-sum: (column-count($columns) + $outer) * $gutters;
+  $column-sum: is-symmetrical($columns);
+
+  @if not $column-sum {
+    @each $column in $columns {
+      $column-sum: ($column-sum or 0) + $column;
+    }
+  }
+
+  @return $column-sum + $gutter-sum;
+}
+
+// Get Columns
+// -----------
+// Return a subset of columns at a given location.
+// - $span        : <number>
+// - $location    : first | last | <number>
+// - [$columns]   : <number> | <list>
+@function get-columns(
+  $span,
+  $location,
+  $columns: susy-get(columns)
+) {
+  $sub-columns: $span;
+
+  @if not is-symmetrical($columns) {
+    $sub-columns  : ();
+    $location     : get-location($span, $location, $columns) or 1;
+    @for $i from $location to ($location + $span) {
+      $sub-columns: append($sub-columns, nth($columns, $i));
+    }
+  }
+
+  @return $sub-columns;
+}
+
+// Get Column Span Sum
+// -------------------
+// Find the sum of a column-span.
+// - $span        : <number>
+// - $location    : first | last | <number>
+// - [$columns]   : <number> | <list>
+// - [$gutters]   : <ratio>
+// - [$outer]     : <boolean>
+@function get-column-span-sum(
+  $span,
+  $location     : false,
+  $columns      : susy-get(columns),
+  $gutters      : susy-get(gutters),
+  $outer        : false
+) {
+  @if not is-symmetrical($columns) {
+    $span: get-columns($span, $location, $columns);
+  }
+
+  @return column-sum($span, $gutters, $outer);
+}

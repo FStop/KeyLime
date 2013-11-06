@@ -1,0 +1,154 @@
+// Gutter Syntax
+// =============
+
+// Gutters
+// -------
+// Set gutters on an element.
+// - [$context]   : <settings>
+@mixin gutters(
+  $context: $susy
+) {
+  $context    : parse-gutters($context);
+  $gutters    : get-gutters($context);
+  $output     : (
+    before: map-get($gutters, before),
+    after: map-get($gutters, after),
+    flow: span-get(flow, $context),
+  );
+
+  @if is-inside($context) {
+    @include padding-output($output...);
+  } @else {
+    @include margin-output($output...);
+  }
+}
+
+@mixin gutter(
+  $context: $susy
+) {
+  @include gutters($context);
+}
+
+// Gutter
+// ------
+// Return the width of a gutter.
+// - [$context]   : <settings>
+@function gutter(
+  $context: $susy
+) {
+  $context: parse-gutters($context);
+
+  $gutters: get-gutters($context);
+  $gutters: map-get($gutters, before) or map-get($gutters, after);
+
+  @return $gutters;
+}
+
+@function gutters(
+  $context: $susy
+) {
+  @return gutter($context);
+}
+
+// Parse Gutters
+// -------------
+// Return context with override value set
+// $context: <context>
+@function parse-gutters(
+  $context: $susy
+) {
+  $context      : parse-span($context);
+  $override     : span-get(gutter-override, $context) or span-get(span, $context);
+
+  @if $override and not unitless($override) {
+    $context: map-merge($context, (gutter-override: $override));
+  }
+
+  @return $context;
+}
+
+// Get Gutter Width
+// ----------------
+// Return gutter width.
+// - [$context]: <context>
+@function get-gutter-width(
+  $context: $susy
+) {
+  $context  : parse-gutters($context);
+  $gutter   : span-get(gutter-override, $context);
+
+  @if not $gutter {
+    $gutters: span-get(gutters, $context);
+    $column-width: span-get(column-width, $context);
+    @if $column-width and gutter-math($context) == static {
+      $gutter: $gutters * $column-width;
+    } @else {
+      $columns  : span-get(columns, $context);
+      $outer    : if(is-inside($context), outer, span-get(outer, $context));
+      $gutter   : percentage($gutters / column-sum($columns, $gutters, $outer));
+    }
+  }
+
+  @return $gutter;
+}
+
+// Get Gutters
+// -----------
+// Return before and after gutter values.
+// - [$context]: <context>
+@function get-gutters(
+  $context: $susy
+) {
+  $context          : parse-gutters($context);
+  $gutter-position  : span-get(gutter-position, $context);
+  $gutter           : get-gutter-width($context);
+  $return           : (before: null, after: null);
+
+  @if is-split($context) {
+    $gutter: $gutter / 2;
+    $return: map-merge($return, (before: $gutter, after: $gutter));
+  } @else {
+    $return: map-merge($return, ($gutter-position: $gutter));
+  }
+
+  @return $return;
+}
+
+// Is Inside
+// ---------
+// Returns true if gutters are inside.
+// $context: <context>
+@function is-inside(
+  $context
+) {
+  $inside: inside inside-static;
+  $gutter-position: span-get(gutter-position, $context);
+
+  @return if(index($inside, $gutter-position), true, false);
+}
+
+// Is Split
+// --------
+// Returns true if gutters are split.
+// $context: <context>
+@function is-split(
+  $context
+) {
+  $split: split inside inside-static;
+  $gutter-position: span-get(gutter-position, $context);
+
+  @return if(index($split, $gutter-position), true, false);
+}
+
+// Gutter Math
+// -----------
+// Return the math to use for gutter calculations
+// $context: <context>
+@function gutter-math(
+  $context: $susy
+) {
+  $return   : span-get(layout-math, $context);
+  $return   : if(span-get(gutter-position, $context) == inside-static, static, $return);
+
+  @return $return;
+}

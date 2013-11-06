@@ -1,0 +1,61 @@
+// Container Syntax
+// ================
+
+// Container [mixin]
+// -----------------
+// Set a container element
+// - [$grid]  : <settings>
+@mixin container(
+  $grid: $susy
+) {
+  $grid: parse-grid($grid);
+
+  $width      : get-container-width($grid);
+  $justify    : susy-get(container-position, $grid);
+  $math       : susy-get(layout-math, $grid);
+  $box        : susy-get(box-sizing, $grid);
+
+  @if $box {
+    @include susy-box-sizing($box);
+  }
+
+  @include float-container($width, $justify, $math);
+  @include background-grid($grid);
+}
+
+// Container [function]
+// --------------------
+// Return container width
+// - [$grid]  : <settings>
+@function container(
+  $grid: $susy
+) {
+  $grid: parse-grid($grid);
+  @return get-container-width($grid);
+}
+
+// Get Container Width
+// -------------------
+// Calculate the container width
+// - [$grid]: <settings>
+@function get-container-width(
+  $grid: $susy
+) {
+  $grid           : parse-grid($grid);
+  $width          : susy-get(container, $grid);
+  $column-width   : susy-get(column-width, $grid);
+
+  @if not $width or $width == auto {
+    @if $column-width {
+      $columns        : susy-get(columns, $grid);
+      $gutters        : susy-get(gutters, $grid);
+      $outer          : if(is-inside($grid), true, false);
+      $width          : calculate-container-width($columns, $gutters, $column-width, $outer);
+    } @else {
+      // if we have nothing, default to 100%
+      $width: 100%;
+    }
+  }
+
+  @return $width;
+}
