@@ -1,0 +1,52 @@
+// Padding Syntax
+// ==============
+
+// Prefix
+// ------
+// Add spanning-padding before an element.
+// - $span  : <span>
+@mixin prefix(
+  $span
+) {
+  $span   : map-merge(parse-span($span), (outer: outer));
+  $flow   : span-get(flow, $span);
+  $width  : span($span);
+
+  @include padding-output($width, null, $flow);
+}
+
+// Suffix
+// ------
+// Add spanning-padding after an element.
+// - $span  : <span>
+@mixin suffix(
+  $span
+) {
+  $span   : map-merge(parse-span($span), (outer: outer));
+  $flow   : span-get(flow, $span);
+  $width  : span($span);
+
+  @include padding-output(null, $width, $flow);
+}
+
+// Pad
+// ---
+// Add spanning-padding before and after an element.
+// - $pre     : <span>
+// - [$post]  : <span>
+@mixin pad(
+  $pre,
+  $post: $pre
+) {
+  $pre      : if(length($pre) == 1 and length($post) > 1, set-nth($post, 1, $pre), $pre);
+  $pre      : map-merge(parse-span($pre), (outer: outer));
+  $post     : map-merge(parse-span($post), (outer: outer));
+
+  $output   : (
+    before: span($pre),
+    after: span($post),
+    flow: span-get(flow, $pre) or span-get(flow, $post),
+  );
+
+  @include padding-output($output...);
+}
