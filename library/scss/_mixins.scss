@@ -1,0 +1,24 @@
+/**
+* Mixins
+*
+*/
+
+/**********
+COLORS
+**********/
+
+$keylime: #b1d322;
+$keylime-lt: #dbf4ab;
+
+/********
+UTILITIES
+*********/
+// I make use of Sass placeholder selectors becuase they are awesome.
+// see http://sass-lang.com/documentation/file.SASS_REFERENCE.html#placeholder_selectors_
+// and http://blog.teamtreehouse.com/extending-placeholder-selectors-with-sass
+
+%transition{
+	@include transition(all .2s ease);
+	// add @extend %transition; as a style rule in your .scss
+	// and boom goes the dynamite
+}
